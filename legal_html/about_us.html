@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>关于我们 - 谐音梗</title>
+    <style>
+      :root {
+        --bg: #f6fbff;
+        --card: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: rgba(17, 24, 39, 0.12);
+        --accent: #2563eb;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a;
+          --card: #111c2e;
+          --text: #e5e7eb;
+          --muted: #9ca3af;
+          --border: rgba(229, 231, 235, 0.14);
+          --accent: #60a5fa;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.75;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 56px; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+      }
+      h1 { margin: 0 0 6px; font-size: 24px; }
+      .meta { color: var(--muted); font-size: 13px; }
+      h2 { margin: 22px 0 10px; font-size: 18px; }
+      p { margin: 8px 0; }
+      ul { margin: 8px 0 8px 18px; padding: 0; }
+      .tag {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>关于我们</h1>
+        <div class="meta">谐音梗</div>
+        <div class="meta">更新日期：2026-04-16</div>
+
+        <h2>1. 我们做了什么</h2>
+        <p>
+          “谐音梗”是一款轻量的看图猜词/谐音梗答题游戏。我们希望用更短的时间、更简单的交互，带来更高密度的乐趣。
+        </p>
+
+        <h2>2. 核心体验</h2>
+        <ul>
+          <li>看题图，选字或键盘输入作答。</li>
+          <li>答对自动进入下一题，答错可继续尝试。</li>
+          <li>可通过提示功能解锁答案；提示积分支持本地存储（卸载即清空）。</li>
+          <li>题图缓存加速：已看过的题图会尽量从本地缓存读取，减少二次加载等待。</li>
+        </ul>
+
+        <h2>3. 可能使用的第三方服务</h2>
+        <p>
+          为了提供广告展示与基础能力，本应用可能集成第三方 SDK。你可以在《隐私政策》中查看更详细的信息。
+        </p>
+        <p>
+          <span class="tag">广告</span> AdMob / 友盟 U-APPWIN
+        </p>
+    
+        <p>
+          <span class="tag">缓存</span> 图片下载与本地缓存
+        </p>
+
+        <h2>4. 联系方式</h2>
+        <ul>
+          <li>邮箱：<a href="mailto:317804760@qq.com">317804760@qq.com</a></li>
+        </ul>
+
+        <h2>5. 版本信息</h2>
+        <p>你可以在应用内“设置”页查看当前版本信息（如已展示）。</p>
+      </div>
+    </div>
+  </body>
+</html>

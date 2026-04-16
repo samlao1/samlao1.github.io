@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技术支持中心</title>
+  <meta name="description" content="面向 App Store 与 Google Play 审核的技术支持页面，提供支付、账号、隐私与问题反馈支持。">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #111a33;
+      --card: rgba(255, 255, 255, 0.08);
+      --line: rgba(255, 255, 255, 0.14);
+      --text: #f4f7ff;
+      --muted: #a8b3cf;
+      --brand: #6da8ff;
+      --brand-2: #7af0ff;
+      --ok: #4ee29a;
+      --warn: #ffd166;
+      --danger: #ff7d7d;
+      --shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 600px at 10% -20%, #2d4ecf66, transparent 70%),
+        radial-gradient(800px 500px at 90% -10%, #2ec4ff44, transparent 65%),
+        linear-gradient(135deg, #0b1020, #0e1630 55%, #091425);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      backdrop-filter: blur(14px);
+      background: rgba(11, 16, 32, 0.55);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      box-shadow: 0 0 20px #5d9aff99;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 16px;
+      font-size: 14px;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .hero {
+      padding: 72px 0 28px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+    .hero-card,
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-card {
+      padding: 34px;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid #7aa8ff66;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #dbe9ff;
+      background: #365db833;
+    }
+    h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(30px, 5vw, 44px);
+      line-height: 1.15;
+      letter-spacing: 0.3px;
+    }
+    .hero p {
+      color: var(--muted);
+      margin: 0 0 20px;
+      max-width: 56ch;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 11px 16px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #091127;
+      box-shadow: 0 6px 22px #67adff70;
+    }
+    .btn-ghost {
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-box {
+      padding: 24px;
+      display: grid;
+      gap: 12px;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 14px;
+    }
+    .badge {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .b-ok { background: #15ad6d26; color: #8dffd0; border-color: #2ad08d66; }
+    .b-warn { background: #f7bd1133; color: #ffe7ab; border-color: #ffda7a66; }
+    .b-info { background: #4b7cff2d; color: #d3e2ff; border-color: #80a6ff66; }
+
+    section {
+      padding: 24px 0;
+    }
+    .section-title {
+      font-size: 24px;
+      margin: 0 0 12px;
+    }
+    .section-desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .feature {
+      padding: 18px;
+    }
+    .feature h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+    details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    details p {
+      margin: 10px 0 2px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .contact-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .contact-card {
+      padding: 20px;
+    }
+    .kv {
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .kv strong { color: var(--text); }
+
+    .form {
+      display: grid;
+      gap: 10px;
+    }
+    .input, .textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    .input:focus, .textarea:focus {
+      border-color: #8eb0ff99;
+      box-shadow: 0 0 0 3px #6789ff33;
+    }
+    .textarea { min-height: 110px; resize: vertical; }
+
+    footer {
+      margin-top: 18px;
+      border-top: 1px solid var(--line);
+      padding: 22px 0 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-inner a {
+      color: #d5e4ff;
+      text-decoration: none;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .contact-wrap,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        padding-top: 52px;
+      }
+      .hero-card {
+        padding: 24px;
+      }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        <span>App 技术支持中心</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#support">支持服务</a>
+        <a href="#faq">常见问题</a>
+        <a href="#contact">联系我们</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-grid">
+        <article class="hero-card">
+          <h1>快速、合规、可追踪的<br>用户技术支持</h1>
+          <p>
+            本页面用于应与用户支持展示，覆盖账号问题、订阅支付（App Store / Google Play）、
+            退款指引、隐私与数据安全、故障排查等核心场景。
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#contact">提交技术问题</a>
+            <a class="btn btn-ghost" href="#faq">查看常见问题</a>
+          </div>
+        </article>
+
+        <aside class="card status-box">
+          <div class="status-item">
+            <span>技术支持响应</span>
+            <span class="badge b-ok">≤ 24 小时</span>
+          </div>
+          <div class="status-item">
+            <span>支付支持（App Store / Google Play）</span>
+            <span class="badge b-info">已启用</span>
+          </div>
+          <div class="status-item">
+            <span>退款流程透明度</span>
+            <span class="badge b-ok">标准化</span>
+          </div>
+          <div class="status-item">
+            <span>系统维护状态</span>
+            <span class="badge b-warn">正常运行</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="support">
+      <h2 class="section-title">支持服务范围</h2>
+      <p class="section-desc">参考主流 SaaS / 移动应用支持站结构，按审核重点与用户诉求分类。</p>
+      <div class="grid-3">
+        <article class="card feature">
+          <h3>账号与登录</h3>
+          <p>包含注册、登录失败、验证码异常、账号找回、设备切换与安全验证。</p>
+        </article>
+        <article class="card feature">
+          <h3>订阅与支付</h3>
+          <p>支持 App Store 内购/订阅与 Google Play（含 Google Pay）支付问题排查、订单核验、扣费解释、续费与取消订阅指导。</p>
+        </article>
+        <article class="card feature">
+          <h3>退款与账单</h3>
+          <p>提供退款申请说明、账单记录查询路径、审核时效与进度反馈机制。</p>
+        </article>
+        <article class="card feature">
+          <h3>隐私与数据</h3>
+          <p>提供隐私政策、数据处理原则、删除账号与数据导出申请入口。</p>
+        </article>
+        <article class="card feature">
+          <h3>故障排查</h3>
+          <p>覆盖闪退、白屏、加载失败、网络超时、版本兼容与缓存问题处理。</p>
+        </article>
+        <article class="card feature">
+          <h3>人工升级支持</h3>
+          <p>复杂问题支持人工工单升级，支持附带截图、订单号和错误日志追踪。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2 class="section-title">常见问题（FAQ）</h2>
+      <p class="section-desc">以下问题常关注内容，建议保持真实且长期可维护。</p>
+      <div class="faq-list">
+        <details>
+          <summary>Q1：如何取消 App Store（Apple）订阅？</summary>
+          <p>
+            iPhone/iPad：打开“设置”→ 点击你的 Apple ID →“订阅”，选择本应用后取消订阅。
+            取消后，当前计费周期结束前仍可继续使用订阅功能。
+          </p>
+        </details>
+        <details>
+          <summary>Q2：如何取消 Google Play（Google Pay）订阅？</summary>
+          <p>
+            Android：打开 Google Play →“付款和订阅”→“订阅”，选择本应用后点击“取消订阅”。
+            取消后，当前计费周期结束前仍可继续使用订阅功能。
+          </p>
+        </details>
+        <details>
+          <summary>Q3：支付成功但应用内未到账怎么办？</summary>
+          <p>
+            请先重启应用并检查网络状态；如仍未到账，请通过下方表单提交订单信息（例如 Apple 交易凭证/订单号或 Google GPA 订单号）与账号信息，
+            我们将在 24 小时内人工核验并处理。
+          </p>
+        </details>
+        <details>
+          <summary>Q4：如何申请退款？</summary>
+          <p>
+            App Store 订单请通过 Apple 官方退款渠道申请；Google Play（含 Google Pay）订单可通过 Google Play 官方退款流程申请；
+            如需我们协助，请提交订单号与问题说明，我们会提供核验材料和处理建议。
+          </p>
+        </details>
+        <details>
+          <summary>Q5：如何删除账号和个人数据？</summary>
+          <p>
+            可在应用内“设置 - 账号管理”发起，或通过支持邮箱提交删除请求。
+            我们将在身份核验后按隐私政策完成处理并反馈结果。
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2 class="section-title">联系我们</h2>
+      <p class="section-desc">建议你把下面的邮箱、应用名、公司名替换成真实信息后再提交审核。</p>
+      <div class="contact-wrap">
+        <article class="card contact-card">
+          <h3>支持信息</h3>
+          <p class="kv"><strong>技术支持人：</strong>Huang.z.x</p>
+          <p class="kv"><strong>支持邮箱：</strong>317804760@qq.com</p>
+          <p class="kv"><strong>工作时间：</strong>周一至周日 09:00 - 21:00 (UTC+8)</p>
+          <p class="kv"><strong>平均响应：</strong>24 小时内回复</p>
+          <p class="kv"><strong>隐私政策：</strong><a href="#" style="color:#dbe9ff;">Privacy</a></p>
+          <p class="kv"><strong>服务条款：</strong><a href="#" style="color:#dbe9ff;">Terms</a></p>
+        </article>
+
+        <article class="card contact-card">
+          <h3>提交问题</h3>
+          <form class="form" action="mailto:support@yourapp.com" method="post" enctype="text/plain">
+            <input class="input" type="text" name="name" placeholder="你的姓名 / Name" required>
+            <input class="input" type="email" name="email" placeholder="联系邮箱 / Email" required>
+            <input class="input" type="text" name="order" placeholder="订单号（如有）/ Order ID">
+            <textarea class="textarea" name="issue" placeholder="请描述你遇到的问题..." required></textarea>
+            <button class="btn btn-primary" type="submit">发送支持请求</button>
+          </form>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© 2026 Huang.z.x. All rights reserved.</span>
+      <span>
+        <a href="#">Privacy</a> ·
+        <a href="#">Terms</a> ·
+        <a href="mailto:317804760@qq.com">Email Support</a>
+      </span>
+    </div>
+  </footer>
+</body>
+</html>
