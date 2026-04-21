@@ -28,9 +28,9 @@
       background: radial-gradient(circle at top, #e9f7f6 0%, var(--bg) 45%, #eef2ff 100%);
       color: var(--text);
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 20px;
+      padding: 10px;
     }
 
     .wrap {
@@ -39,7 +39,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px;
+      padding: 10px;
     }
 
     .topbar {
@@ -224,7 +224,11 @@
       display: flex;
       gap: 10px;
       justify-content: space-between;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+    }
+
+    .controls button {
+      flex: 1 1 0;
     }
 
     button {
@@ -260,7 +264,7 @@
 
     @media (max-width: 640px) {
       .wrap { padding: 14px; }
-      .controls button { flex: 1 1 calc(50% - 8px); }
+      .controls button { flex: 1 1 0; }
     }
   </style>
 </head>
@@ -435,7 +439,7 @@
         </div>
 
         <div class="toolbar">
-          <button id="modeBtn">${mode === 'read' ? '切换到答案模式' : '切换到阅读模式'}</button>
+          <button id="modeBtn">${mode === 'read' ? '答案模式' : '阅读模式'}</button>
           <button id="wrongBtn">答错题 (${wrongSet.size})</button>
           <button id="resetBtn" class="danger-btn">重置缓存</button>
         </div>
