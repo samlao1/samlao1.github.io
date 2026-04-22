@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小红书链接直解析</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #dbe2ec;
+      --primary: #dc2626;
+      --primary-hover: #b91c1c;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: radial-gradient(circle at top, #fff1f2 0%, var(--bg) 40%, #eef2ff 100%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(20px, 3vw, 28px);
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .note {
+      margin-top: 8px;
+      padding: 10px;
+      border: 1px dashed #fecaca;
+      border-radius: 10px;
+      color: #991b1b;
+      background: #fff1f2;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin: 8px 0 6px;
+      color: #374151;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--primary-hover); }
+    button.secondary { background: #334155; }
+    button.secondary:hover { background: #1e293b; }
+    button.ok { background: var(--ok); }
+    button.ok:hover { background: #0d5f58; }
+
+    .status {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .status.error { color: #b91c1c; }
+    .status.warn { color: var(--warn); }
+    .status.ok { color: var(--ok); }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .meta div {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fafcff;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .meta strong { color: #374151; }
+
+    .img-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .img-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      background: #f3f4f6;
+    }
+
+    .img-body {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 640px) {
+      body { padding: 12px; }
+      .card { padding: 12px; }
+      button { width: 100%; }
+      .img-toolbar button { width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+
+    <section class="card">
+      <label for="urlInput">分享链接（或包含链接的整段文本）</label>
+      <input id="urlInput" type="text" placeholder="例如：http://xhslink.com/o/Atv1uK9wiJi" />
+
+      <div class="actions">
+        <button id="parseBtn">直接解析</button>
+        <button id="clearBtn" class="secondary">清空</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section id="resultCard" class="card hidden">
+      <div class="meta" id="metaBox"></div>
+
+      <div class="actions">
+        <button id="copyAllBtn" class="ok">一键复制标题/作者/正文/链接</button>
+      </div>
+
+      <div class="img-toolbar">
+        <strong id="imgCountText">图片 0 张</strong>
+        <button id="selectAllBtn" class="secondary">全选</button>
+        <button id="invertBtn" class="secondary">反选</button>
+        <button id="saveSelectedBtn">一键保存已选图片</button>
+      </div>
+
+      <div id="imageGrid" class="grid"></div>
+      <div id="saveStatus" class="status"></div>
+    </section>
+  </main>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const parseBtn = document.getElementById('parseBtn');
+    const fillDemoBtn = document.getElementById('fillDemoBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusEl = document.getElementById('status');
+
+    const resultCard = document.getElementById('resultCard');
+    const metaBox = document.getElementById('metaBox');
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    const imageGrid = document.getElementById('imageGrid');
+    const imgCountText = document.getElementById('imgCountText');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const invertBtn = document.getElementById('invertBtn');
+    const saveSelectedBtn = document.getElementById('saveSelectedBtn');
+    const saveStatus = document.getElementById('saveStatus');
+
+    const state = {
+      sourceUrl: '',
+      author: '',
+      title: '',
+      content: '',
+      images: []
+    };
+
+    function setStatus(msg, type = '') {
+      statusEl.className = 'status' + (type ? ' ' + type : '');
+      statusEl.textContent = msg;
+    }
+
+    function setSaveStatus(msg, type = '') {
+      saveStatus.className = 'status' + (type ? ' ' + type : '');
+      saveStatus.textContent = msg;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function extractFirstUrl(text) {
+      const matches = String(text || '').match(/https?:\/\/[^\s】\]）)]+/g);
+      if (!matches || !matches.length) return '';
+      return matches[0].trim();
+    }
+
+    function decodeEscapedText(raw) {
+      if (!raw) return '';
+      try {
+        return JSON.parse('"' + String(raw)
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\r')
+          .replace(/\t/g, '\\t') + '"');
+      } catch (_) {
+        return String(raw);
+      }
+    }
+
+    function unique(arr) {
+      return Array.from(new Set(arr.filter(Boolean)));
+    }
+
+    function imageSignature(url) {
+      try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+        const pathname = decodeURIComponent(parsed.pathname || '').toLowerCase().replace(/\/+$/, '');
+        let base = pathname.split('/').pop() || pathname;
+        base = base
+          .replace(/\.(jpg|jpeg|png|webp|gif|bmp|heic|avif)$/i, '')
+          .replace(/!.*$/i, '')
+          .replace(/_[0-9]{2,4}x[0-9]{2,4}.*$/i, '')
+          .replace(/@[123]x.*$/i, '')
+          .trim();
+        if (base.length < 8) base = pathname;
+        return `${host}|${base}`;
+      } catch (_) {
+        const clean = String(url || '').split('#')[0].split('?')[0].toLowerCase().replace(/\/+$/, '');
+        return clean;
+      }
+    }
+
+    function dedupeImageUrls(urls) {
+      const seen = new Set();
+      const out = [];
+      for (const raw of urls) {
+        const u = String(raw || '').trim();
+        if (!u) continue;
+        const key = imageSignature(u);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(u);
+      }
+      return out;
+    }
+
+    function findByRegex(source, rules) {
+      for (const reg of rules) {
+        const m = source.match(reg);
+        if (m && m[1]) return decodeEscapedText(m[1].trim());
+      }
+      return '';
+    }
+
+    function normalizeMaybeUrl(v) {
+      let out = String(v || '').trim()
+        .replace(/\\u002F/gi, '/')
+        .replace(/\\\//g, '/')
+        .replace(/&amp;/g, '&');
+      if (out.startsWith('//')) out = 'https:' + out;
+      return out;
+    }
+
+    function looksLikeImageUrl(url) {
+      if (!/^https?:\/\//i.test(url)) return false;
+      if (/\.(jpg|jpeg|png|webp|gif|bmp|heic|avif)(\?|$)/i.test(url)) return true;
+      if (/(xhscdn|sns-webpic|xhs|image|img|photo|picture|pic)/i.test(url)) return true;
+      if (/(imageView2|x-oss-process|format=|quality=|resize=)/i.test(url)) return true;
+      return false;
+    }
+
+    function extractMarkdownContentImages(raw) {
+      const lines = String(raw || '').split('\n');
+      const stopSection = /(评论|comment|comments|回复|related|推荐|大家都在搜|猜你想看)/i;
+      const reg = /!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/i;
+      const out = [];
+      let stopped = false;
+      for (const line of lines) {
+        if (stopSection.test(line)) stopped = true;
+        if (stopped) continue;
+        const m = line.match(reg);
+        if (m && m[1]) out.push(m[1]);
+      }
+      return out;
+    }
+
+    function isLikelyContentImage(raw, index, sourceTag) {
+      if (sourceTag === 'note-image-list' || sourceTag === 'markdown-main') return true;
+      const text = String(raw || '').toLowerCase();
+      const start = Math.max(0, (index || 0) - 240);
+      const end = Math.min(text.length, (index || 0) + 240);
+      const ctx = text.slice(start, end);
+
+      const includeWords = [
+        'image_list', 'images_list', 'note_card', 'note', 'desc', 'content',
+        '正文', '笔记', '帖子', 'title', 'cover', 'masterurl', 'originurl', 'displayurl'
+      ];
+      const strongIncludeWords = [
+        'image_list', 'images_list', 'note_card', 'note_detail', 'masterurl', 'originurl', 'displayurl'
+      ];
+      const excludeWords = [
+        'comment', 'comments', 'reply', 'replies', 'avatar', 'user', 'profile',
+        'icon', 'emoji', 'sticker', 'related', 'recommend', 'recommendation',
+        '猜你', '相关推荐', '评论', '回复', '头像', '推荐', '广告', 'banner'
+      ];
+
+      const hasInclude = includeWords.some(w => ctx.includes(w));
+      const hasStrongInclude = strongIncludeWords.some(w => ctx.includes(w));
+      const hasExclude = excludeWords.some(w => ctx.includes(w));
+      if (hasExclude && !hasStrongInclude) return false;
+      return hasStrongInclude || (hasInclude && !hasExclude);
+    }
+
+    function extractImageUrls(raw) {
+      const all = [];
+      const pushUrl = (u, idx, sourceTag = 'generic') => {
+        const cleaned = normalizeMaybeUrl(u);
+        if (!looksLikeImageUrl(cleaned)) return;
+        all.push({ url: cleaned, index: idx || 0, sourceTag });
+      };
+
+      const anyUrlRegex = /https?:\/\/[^"'\s)]+/gi;
+      let m;
+      while ((m = anyUrlRegex.exec(raw)) !== null) pushUrl(m[0], m.index, 'any-url');
+
+      const escapedUrlRegex = /https?:\\\/\\\/[^"'\s)]+/gi;
+      while ((m = escapedUrlRegex.exec(raw)) !== null) pushUrl(m[0], m.index, 'escaped-url');
+
+      const metaImgRegex = /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/gi;
+      while ((m = metaImgRegex.exec(raw)) !== null) pushUrl(m[1], m.index, 'meta-og-image');
+
+      const jsonImageFieldRegex = /"(?:url|src|originUrl|urlDefault|urlPre|urlSizeLarge|masterUrl|imageUrl|displayUrl|cover|origin)"\s*:\s*"([^"]+)"/gi;
+      while ((m = jsonImageFieldRegex.exec(raw)) !== null) pushUrl(m[1], m.index, 'json-image-field');
+
+      const mdImageRegex = /!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/gi;
+      while ((m = mdImageRegex.exec(raw)) !== null) pushUrl(m[1], m.index, 'markdown');
+
+      const imageListBlockRegex = /"(?:image_list|images_list|imageList|note_image_list)"\s*:\s*\[([\s\S]{0,120000}?)\]/gi;
+      while ((m = imageListBlockRegex.exec(raw)) !== null) {
+        const block = m[1] || '';
+        const blockUrlRegex = /https?:\\\/\\\/[^"'\s)]+|https?:\/\/[^"'\s)]+/gi;
+        let b;
+        while ((b = blockUrlRegex.exec(block)) !== null) {
+          pushUrl(b[0], m.index, 'note-image-list');
+        }
+      }
+
+      for (const u of extractMarkdownContentImages(raw)) {
+        pushUrl(u, 0, 'markdown-main');
+      }
+
+      const contentOnly = all
+        .filter(item => isLikelyContentImage(raw, item.index, item.sourceTag))
+        .map(item => item.url);
+
+      return dedupeImageUrls(unique(contentOnly));
+    }
+
+    function parseRaw(raw, sourceUrl) {
+      const htmlLike = /<html|<head|<body|og:title|__INITIAL_STATE__/i.test(raw);
+
+      let title = '';
+      let author = '';
+      let content = '';
+
+      if (htmlLike) {
+        title = findByRegex(raw, [
+          /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
+          /<title[^>]*>([^<]+)<\/title>/i,
+          /"noteTitle"\s*:\s*"([^"]+)"/i,
+          /"name"\s*:\s*"([^"]{3,120})"/i,
+          /"title"\s*:\s*"([^"]+)"/i
+        ]);
+
+        author = findByRegex(raw, [
+          /"nickname"\s*:\s*"([^"]+)"/i,
+          /<meta[^>]+name=["']author["'][^>]+content=["']([^"']+)["']/i,
+          /"author"\s*:\s*"([^"]+)"/i
+        ]);
+
+        content = findByRegex(raw, [
+          /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
+          /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i,
+          /"desc"\s*:\s*"([^"]+)"/i,
+          /"description"\s*:\s*"([^"]+)"/i
+        ]);
+      } else {
+        title = findByRegex(raw, [
+          /^\s*Title:\s*(.+)$/im,
+          /^\s*标题[:：]\s*(.+)$/im,
+          /^\s*#\s+(.+)$/m
+        ]);
+
+        author = findByRegex(raw, [
+          /^\s*作者[:：]\s*(.+)$/im,
+          /^\s*Author:\s*(.+)$/im
+        ]);
+
+        content = findByRegex(raw, [
+          /^\s*Description:\s*(.+)$/im,
+          /^\s*摘要[:：]\s*(.+)$/im,
+          /^\s*内容[:：]\s*(.+)$/im
+        ]);
+      }
+
+      const images = extractImageUrls(raw).map((url, idx) => ({
+        url,
+        name: `img_${idx + 1}.jpg`
+      }));
+
+      if (!title) title = '（未识别标题）';
+      if (!author) author = '（未识别作者）';
+      if (!content) content = '（未识别正文）';
+
+      return {
+        sourceUrl,
+        title,
+        author,
+        content,
+        images
+      };
+    }
+
+    async function fetchTextByUrl(url) {
+      const tries = [
+        { kind: 'direct', url },
+        { kind: 'mirror', url: `https://r.jina.ai/http://${url.replace(/^https?:\/\//i, '')}` }
+      ];
+
+      const errors = [];
+
+      for (const t of tries) {
+        try {
+          const res = await fetch(t.url, { method: 'GET', redirect: 'follow' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const text = await res.text();
+          if (!text || text.length < 50) throw new Error('返回内容过短');
+          return { text, channel: t.kind };
+        } catch (e) {
+          errors.push(`${t.kind}: ${e.message}`);
+        }
+      }
+
+      throw new Error('无法读取目标地址。\n' + errors.join('\n'));
+    }
+
+    function renderResult() {
+      resultCard.classList.remove('hidden');
+      const contentHtml = escapeHtml(state.content || '').replaceAll('\n', '<br>');
+      const sourceHtml = state.sourceUrl
+        ? `<a href="${escapeHtml(state.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(state.sourceUrl)}</a>`
+        : '未识别链接';
+
+      metaBox.innerHTML = `
+        <div><strong>标题：</strong>${escapeHtml(state.title || '（空）')}</div>
+        <div><strong>作者：</strong>${escapeHtml(state.author || '（空）')}</div>
+        <div><strong>正文：</strong>${contentHtml || '（空）'}</div>
+        <div><strong>来源链接：</strong>${sourceHtml}</div>
+      `;
+
+      imgCountText.textContent = `图片 ${state.images.length} 张（默认全选）`;
+      imageGrid.innerHTML = state.images.map((img, index) => `
+        <article class="img-card">
+          <img class="thumb" src="${escapeHtml(img.url)}" alt="image-${index + 1}" loading="lazy" />
+          <div class="img-body">
+            <label style="margin:0; display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" class="img-check" data-idx="${index}" checked />
+              选择图片 ${index + 1}
+            </label>
+          </div>
+        </article>
+      `).join('');
+
+      bindImageFailHide();
+      setSaveStatus('');
+    }
+
+    function bindImageFailHide() {
+      const cards = Array.from(imageGrid.querySelectorAll('.img-card'));
+      cards.forEach((card) => {
+        const img = card.querySelector('.thumb');
+        const checkbox = card.querySelector('.img-check');
+        if (!img) return;
+
+        img.addEventListener('error', () => {
+          if (checkbox) checkbox.checked = false;
+          card.style.display = 'none';
+          updateVisibleImageCount();
+        }, { once: true });
+
+        img.addEventListener('load', () => {
+          updateVisibleImageCount();
+        }, { once: true });
+      });
+      updateVisibleImageCount();
+    }
+
+    function updateVisibleImageCount() {
+      const visibleCards = Array.from(imageGrid.querySelectorAll('.img-card'))
+        .filter(card => card.style.display !== 'none').length;
+      imgCountText.textContent = `图片 ${visibleCards} 张（默认全选）`;
+    }
+
+    function getSelectedIndexes() {
+      return Array.from(document.querySelectorAll('.img-check'))
+        .filter(c => {
+          if (!c.checked) return false;
+          const card = c.closest('.img-card');
+          return card && card.style.display !== 'none';
+        })
+        .map(c => Number(c.getAttribute('data-idx')))
+        .filter(n => !Number.isNaN(n));
+    }
+
+    function buildCopyText() {
+      return [
+        `标题：${state.title || ''}`,
+        `作者：${state.author || ''}`,
+        `正文：${state.content || ''}`,
+        `来源链接：${state.sourceUrl || ''}`,
+        `图片数量：${state.images.length}`,
+        ...state.images.map((img, i) => `图片${i + 1}：${img.url}`)
+      ].join('\n');
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+
+    function directDownload(url, filename) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    async function saveOne(url, filename) {
+      try {
+        const res = await fetch(url, { mode: 'cors' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+        return true;
+      } catch (_) {
+        directDownload(url, filename);
+        return false;
+      }
+    }
+
+    function safeName(name) {
+      return String(name || 'xhs_note')
+        .replace(/[\\/:*?"<>|\r\n]+/g, '_')
+        .replace(/\s+/g, '_')
+        .slice(0, 60) || 'xhs_note';
+    }
+
+    parseBtn.addEventListener('click', async () => {
+      const raw = urlInput.value.trim();
+      if (!raw) {
+        setStatus('请先输入链接。', 'warn');
+        return;
+      }
+
+      const url = extractFirstUrl(raw) || raw;
+      if (!/^https?:\/\//i.test(url)) {
+        setStatus('请输入有效的 http/https 链接。', 'warn');
+        return;
+      }
+
+      state.sourceUrl = url;
+
+      setStatus('解析中，请稍候...');
+      parseBtn.disabled = true;
+
+      try {
+        const { text, channel } = await fetchTextByUrl(url);
+        const result = parseRaw(text, url);
+
+        state.sourceUrl = result.sourceUrl;
+        state.title = result.title;
+        state.author = result.author;
+        state.content = result.content;
+        state.images = result.images;
+
+        renderResult();
+        if (!state.images.length) {
+          setStatus(`解析完成（通道：${channel}），但没有识别到图片。可能是目标站点限制。`, 'warn');
+        } else {
+          setStatus(`解析完成（通道：${channel}）：识别到 ${state.images.length} 张图片。`, 'ok');
+        }
+      } catch (err) {
+        setStatus(
+          `解析失败：${err.message}\n\n建议：\n1) 先在浏览器能正常打开该链接\n2) 若仍失败，说明站点有反爬/CORS限制，需要后端代理解析`,
+          'error'
+        );
+      } finally {
+        parseBtn.disabled = false;
+      }
+    });
+
+    fillDemoBtn.addEventListener('click', () => {
+      urlInput.value = 'http://xhslink.com/o/Atv1uK9wiJi';
+      setStatus('已填入示例链接。');
+    });
+
+    clearBtn.addEventListener('click', () => {
+      urlInput.value = '';
+      setStatus('已清空输入。');
+    });
+
+    copyAllBtn.addEventListener('click', async () => {
+      try {
+        await copyText(buildCopyText());
+        setStatus('已复制标题/作者/正文/链接/图片地址。', 'ok');
+      } catch (err) {
+        setStatus('复制失败：' + err.message, 'error');
+      }
+    });
+
+    selectAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('.img-check').forEach(c => {
+        const card = c.closest('.img-card');
+        if (card && card.style.display !== 'none') c.checked = true;
+      });
+    });
+
+    invertBtn.addEventListener('click', () => {
+      document.querySelectorAll('.img-check').forEach(c => {
+        const card = c.closest('.img-card');
+        if (card && card.style.display !== 'none') c.checked = !c.checked;
+      });
+    });
+
+    saveSelectedBtn.addEventListener('click', async () => {
+      const indexes = getSelectedIndexes();
+      if (!indexes.length) {
+        setSaveStatus('请至少选择一张图片。', 'warn');
+        return;
+      }
+
+      saveSelectedBtn.disabled = true;
+      setSaveStatus(`开始保存，共 ${indexes.length} 张...`);
+
+      const base = safeName(state.title || 'xhs_note');
+      let fallbackCount = 0;
+
+      for (let i = 0; i < indexes.length; i += 1) {
+        const idx = indexes[i];
+        const img = state.images[idx];
+        const ext = (img.url.split('?')[0].split('.').pop() || 'jpg').slice(0, 5);
+        const filename = `${base}_${String(i + 1).padStart(2, '0')}.${ext}`;
+        const ok = await saveOne(img.url, filename);
+        if (!ok) fallbackCount += 1;
+        setSaveStatus(`保存中 ${i + 1}/${indexes.length}...` + (fallbackCount ? `（${fallbackCount} 张使用直链下载）` : ''));
+        await new Promise(r => setTimeout(r, 160));
+      }
+
+      setSaveStatus(`保存完成：${indexes.length} 张。` + (fallbackCount ? ` 其中 ${fallbackCount} 张因跨域限制，已走直链下载。` : ''), 'ok');
+      saveSelectedBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
