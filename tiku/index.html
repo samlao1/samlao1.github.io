@@ -63,6 +63,44 @@
       white-space: nowrap;
     }
 
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .jump-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .jump-group input {
+      width: 110px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 14px;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .jump-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+    }
+
+    .jump-btn {
+      height: 36px;
+      padding: 0 12px;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+
     .toolbar {
       display: flex;
       gap: 10px;
@@ -350,6 +388,23 @@
       ];
     }
 
+    function jumpToQuestionByNumber(rawNumber) {
+      const target = Number(String(rawNumber).trim());
+      if (!Number.isInteger(target)) {
+        alert('请输入有效的题号（整数）。');
+        return;
+      }
+
+      const targetIndex = questions.findIndex(item => Number(item.number) === target);
+      if (targetIndex === -1) {
+        alert(`未找到第 ${target} 题，请检查题号。`);
+        return;
+      }
+
+      index = targetIndex;
+      render();
+    }
+
     function renderWrongModal() {
       if (!showWrongModal) return '';
       const wrongNumbers = Array.from(wrongSet).map(Number).sort((a, b) => a - b);
@@ -435,7 +490,13 @@
       app.innerHTML = `
         <div class="topbar">
           <h1 class="title">题库练习</h1>
-          <div class="progress">当前第 ${index + 1} 题 / 共 ${total} 题</div>
+          <div class="topbar-right">
+            <div class="progress">当前第 ${index + 1} 题 / 共 ${total} 题</div>
+            <div class="jump-group">
+              <input id="jumpInput" type="number" min="1" step="1" placeholder="输入题号" />
+              <button id="jumpBtn" class="jump-btn">跳转</button>
+            </div>
+          </div>
         </div>
 
         <div class="toolbar">
@@ -500,6 +561,17 @@
           render();
         }
       };
+
+      const jumpInput = document.getElementById('jumpInput');
+      const jumpBtn = document.getElementById('jumpBtn');
+      if (jumpInput && jumpBtn) {
+        jumpBtn.onclick = () => jumpToQuestionByNumber(jumpInput.value);
+        jumpInput.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            jumpToQuestionByNumber(jumpInput.value);
+          }
+        };
+      }
 
       const closeWrongModal = document.getElementById('closeWrongModal');
       if (closeWrongModal) {
