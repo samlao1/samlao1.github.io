@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>关于我们 - 表情猜成语</title>
+    <style>
+      :root {
+        --bg: #413f36;
+        --card: #fffef8;
+        --text: #1f2a2d;
+        --muted: #66716d;
+        --line: rgba(31, 42, 45, 0.16);
+        --tag: rgba(47, 159, 145, 0.1);
+        --accent: #2f9f91;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #192326;
+          --card: #243033;
+          --text: #f5f7f3;
+          --muted: #b7c3bd;
+          --line: rgba(245, 247, 243, 0.16);
+          --tag: rgba(131, 216, 200, 0.14);
+          --accent: #83d8c8;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.72;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica Neue", Arial, sans-serif;
+      }
+      a { color: var(--accent); text-decoration: none; font-weight: 700; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 28px 16px 56px; }
+      .card {
+        background: var(--card);
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 4px 0 rgba(31, 42, 45, 0.12);
+      }
+      h1 { margin: 0 0 6px; font-size: 25px; }
+      h2 { margin: 24px 0 10px; font-size: 18px; }
+      p { margin: 8px 0; }
+      ul { margin: 8px 0 8px 20px; padding: 0; }
+      .meta { color: var(--muted); font-size: 13px; }
+      .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .tag {
+        border: 1px solid var(--line);
+        background: var(--tag);
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>关于我们</h1>
+        <div class="meta">产品名称：表情猜成语</div>
+        <div class="meta">更新日期：2026-05-22</div>
+
+        <h2>1. 我们在做什么</h2>
+        <p>
+          “表情猜成语”当前版本是一款轻量的 Emoji 猜成语游戏。你可以根据 Emoji 组合联想成语，在答案格中填写答案，也可以使用候选区辅助作答。
+        </p>
+
+        <h2>2. 当前版本主要功能</h2>
+        <ul>
+          <li>Emoji 猜成语：根据 Emoji 图示猜出对应成语。</li>
+          <li>本地题库：题目数据随应用提供，减少核心玩法对网络的依赖。</li>
+          <li>答案填写：支持点击答案格输入、删除和自动判题。</li>
+          <li>候选区：支持显示或隐藏候选字区域，点击候选字可填写答案。</li>
+          <li>提示：点击后直接展示答案，方便卡关时继续游玩。</li>
+          <li>分享：可通过系统分享能力邀请朋友一起玩。</li>
+          <li>设置：提供协议查看、主题等基础设置能力。</li>
+        </ul>
+
+        <h2>3. 当前版本广告说明</h2>
+        <ul>
+          <li>首发版本不要求观看广告才能使用提示。</li>
+          <li>首发版本不要求观看广告才能显示候选区。</li>
+          <li>如后续版本启用广告能力，会同步更新相关说明与隐私政策。</li>
+        </ul>
+
+        <h2>4. 技术与依赖（当前工程）</h2>
+        <div class="tags">
+          <span class="tag">Flutter</span>
+          <span class="tag">Riverpod</span>
+          <span class="tag">本地 JSON 题库</span>
+          <span class="tag">系统分享</span>
+          <span class="tag">本地存储</span>
+          <span class="tag">主题设置</span>
+        </div>
+        <p>说明：具体启用能力以你安装的应用版本和平台环境为准。</p>
+
+        <h2>5. 内容反馈</h2>
+        <p>
+          如果你发现题目、Emoji 表达、答案或提示存在错误，欢迎通过邮件反馈。我们会持续优化题库质量和游玩体验。
+        </p>
+
+        <h2>6. 联系我们</h2>
+        <ul>
+          <li>邮箱：<a href="mailto:317804760@qq.com">317804760@qq.com</a></li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
