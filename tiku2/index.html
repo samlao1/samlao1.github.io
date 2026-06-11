@@ -263,6 +263,24 @@
       margin-bottom: 8px;
     }
 
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mode-pill {
+      border: 1px solid #b8dcd7;
+      background: #f0fdfa;
+      color: #0f766e;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
     .controls {
       margin-top: 18px;
       display: flex;
@@ -330,8 +348,12 @@
     let index = 0;
     let mode = 'read';
     let showWrongModal = false;
+    let wrongMode = 'read';
     const userAnswers = {};
     const draftAnswers = {};
+    const wrongDraftAnswers = {};
+    const wrongSessionAnswers = {};
+    const wrongPendingRemovalSet = new Set();
 
     const WRONG_STORAGE_KEY = 'question-bank-ai-trainer-1000-wrong-numbers-v1';
     const PROGRESS_STORAGE_KEY = 'question-bank-ai-trainer-1000-current-index-v1';
@@ -418,6 +440,39 @@
       ];
     }
 
+    function clearObject(obj) {
+      for (const k of Object.keys(obj)) delete obj[k];
+    }
+
+    function resetWrongPracticeState() {
+      clearObject(wrongDraftAnswers);
+      clearObject(wrongSessionAnswers);
+      wrongPendingRemovalSet.clear();
+    }
+
+    function closeWrongModal() {
+      if (wrongPendingRemovalSet.size) {
+        wrongPendingRemovalSet.forEach(n => wrongSet.delete(Number(n)));
+        saveWrongSet();
+      }
+      showWrongModal = false;
+      resetWrongPracticeState();
+      render();
+    }
+
+    function saveWrongPracticeAnswer(questionNumber, selected, ok) {
+      const n = Number(questionNumber);
+      wrongSessionAnswers[n] = { selected, correct: ok };
+      userAnswers[n] = { selected, correct: ok };
+      saveAnswers();
+      delete wrongDraftAnswers[n];
+      if (ok) {
+        wrongPendingRemovalSet.add(n);
+      } else {
+        wrongPendingRemovalSet.delete(n);
+      }
+    }
+
     function jumpToQuestionByNumber(rawNumber) {
       const target = Number(String(rawNumber).trim());
       if (!Number.isInteger(target)) {
@@ -438,13 +493,22 @@
     function renderWrongModal() {
       if (!showWrongModal) return '';
       const wrongNumbers = Array.from(wrongSet).map(Number).sort((a, b) => a - b);
+      const modeText = wrongMode === 'read' ? '阅读模式' : '答案模式';
+      const toggleText = wrongMode === 'read' ? '答案模式' : '阅读模式';
+      const pendingText = wrongPendingRemovalSet.size
+        ? `<span class="mode-pill">已答对 ${wrongPendingRemovalSet.size} 题，关闭后移出</span>`
+        : '';
       if (!wrongNumbers.length) {
         return `
           <div class="modal" id="wrongModal">
             <div class="modal-card">
               <div class="modal-head">
                 <strong>错题列表</strong>
-                <button id="closeWrongModal" class="small-btn">关闭</button>
+                <div class="modal-actions">
+                  <span class="mode-pill">当前：${modeText}</span>
+                  <button id="wrongModeBtn" class="small-btn">${toggleText}</button>
+                  <button id="closeWrongModal" class="small-btn">关闭</button>
+                </div>
               </div>
               <div class="wrong-panel">暂无错题记录。</div>
             </div>
@@ -453,15 +517,54 @@
       }
       const items = wrongNumbers.map(n => {
         const item = questions.find(q => Number(q.number) === n) || {};
-        const options = getChoices(item)
-          .map(c => `<div>${escapeHtml(c.key)}. ${escapeHtml(c.text)}</div>`)
-          .join('');
+        const choices = getChoices(item);
+        const multipleQuestion = isMultipleQuestion(item);
+        const correctKeys = getAnswerKeys(item.answer);
+        const record = wrongSessionAnswers[n] || null;
+        const answered = !!record;
+        const selectedKeys = answered
+          ? getSelectedKeys(record)
+          : (multipleQuestion ? (wrongDraftAnswers[n] || []) : []);
+        const options = wrongMode === 'read'
+          ? choices
+            .map(c => `<li class="option"><b>${escapeHtml(c.key)}.</b>${escapeHtml(c.text)}</li>`)
+            .join('')
+          : choices.map(c => {
+            const cls = answered
+              ? (selectedKeys.includes(c.key)
+                  ? (record.correct ? 'correct' : 'wrong')
+                  : (correctKeys.includes(c.key) ? 'correct' : ''))
+              : (selectedKeys.includes(c.key) ? 'selected' : '');
+            const disabled = answered ? 'disabled' : '';
+            return `
+              <li>
+                <button class="answer-btn ${cls}" data-wrong-number="${n}" data-wrong-choice="${escapeHtml(c.key)}" ${disabled}>
+                  <b>${escapeHtml(c.key)}.</b>${escapeHtml(c.text)}
+                </button>
+              </li>
+            `;
+          }).join('');
+        const submitHtml = wrongMode === 'answer' && multipleQuestion && !answered
+          ? `<div class="submit-row"><button class="wrong-submit-btn" data-wrong-submit="${n}" ${selectedKeys.length ? '' : 'disabled'}>提交答案</button></div>`
+          : '';
+        const resultHtml = wrongMode === 'answer' && answered
+          ? `<div class="result ${record.correct ? 'correct' : 'wrong'}">${record.correct ? '回答正确，关闭后移出错题' : '回答错误'}</div>`
+          : '';
+        const metaHtml = wrongMode === 'read' || answered
+          ? `
+            <div class="meta">
+              <div><strong>答案：</strong>${escapeHtml(item.answer || '暂无')}</div>
+              <div><strong>解析：</strong>${escapeHtml(item.explanation || '暂无')}</div>
+            </div>
+          `
+          : '';
         return `
           <div class="wrong-item">
             <div class="wrong-q">第 ${n} 题：${escapeHtml(item.question || '')}</div>
-            <div class="wrong-e">${options}</div>
-            <div class="wrong-a"><strong>答案：</strong>${escapeHtml(item.answer || '暂无')}</div>
-            <div class="wrong-e"><strong>解析：</strong>${escapeHtml(item.explanation || '暂无')}</div>
+            <ul class="options">${options}</ul>
+            ${submitHtml}
+            ${resultHtml}
+            ${metaHtml}
           </div>
         `;
       }).join('');
@@ -471,7 +574,12 @@
           <div class="modal-card">
             <div class="modal-head">
               <strong>错题列表（${wrongNumbers.length}）</strong>
-              <button id="closeWrongModal" class="small-btn">关闭</button>
+              <div class="modal-actions">
+                ${pendingText}
+                <span class="mode-pill">当前：${modeText}</span>
+                <button id="wrongModeBtn" class="small-btn">${toggleText}</button>
+                <button id="closeWrongModal" class="small-btn">关闭</button>
+              </div>
             </div>
             <div class="wrong-panel">${items}</div>
           </div>
@@ -575,6 +683,8 @@
 
       document.getElementById('wrongBtn').onclick = () => {
         showWrongModal = true;
+        wrongMode = 'read';
+        resetWrongPracticeState();
         render();
       };
 
@@ -585,8 +695,10 @@
         wrongSet = new Set();
         for (const k of Object.keys(userAnswers)) delete userAnswers[k];
         for (const k of Object.keys(draftAnswers)) delete draftAnswers[k];
+        resetWrongPracticeState();
         index = 0;
         mode = 'read';
+        wrongMode = 'read';
         showWrongModal = false;
         render();
       };
@@ -616,10 +728,15 @@
         };
       }
 
-      const closeWrongModal = document.getElementById('closeWrongModal');
-      if (closeWrongModal) {
-        closeWrongModal.onclick = () => {
-          showWrongModal = false;
+      const closeWrongModalBtn = document.getElementById('closeWrongModal');
+      if (closeWrongModalBtn) {
+        closeWrongModalBtn.onclick = closeWrongModal;
+      }
+
+      const wrongModeBtn = document.getElementById('wrongModeBtn');
+      if (wrongModeBtn) {
+        wrongModeBtn.onclick = () => {
+          wrongMode = wrongMode === 'read' ? 'answer' : 'read';
           render();
         };
       }
@@ -628,10 +745,60 @@
       if (wrongModal) {
         wrongModal.onclick = (e) => {
           if (e.target.id === 'wrongModal') {
-            showWrongModal = false;
-            render();
+            closeWrongModal();
           }
         };
+      }
+
+      if (showWrongModal && wrongMode === 'answer') {
+        const wrongChoiceButtons = app.querySelectorAll('[data-wrong-choice]');
+        wrongChoiceButtons.forEach(btn => {
+          btn.onclick = () => {
+            const n = Number(btn.getAttribute('data-wrong-number'));
+            if (!Number.isFinite(n) || wrongSessionAnswers[n]) return;
+
+            const item = questions.find(qItem => Number(qItem.number) === n);
+            if (!item) return;
+
+            const selected = btn.getAttribute('data-wrong-choice');
+            const itemChoices = getChoices(item);
+            if (isMultipleQuestion(item)) {
+              const selectedSet = new Set(wrongDraftAnswers[n] || []);
+              if (selectedSet.has(selected)) {
+                selectedSet.delete(selected);
+              } else {
+                selectedSet.add(selected);
+              }
+              wrongDraftAnswers[n] = itemChoices
+                .map(choice => choice.key)
+                .filter(key => selectedSet.has(key));
+              render();
+              return;
+            }
+
+            const ok = normalizeAnswer(selected) === normalizeAnswer(item.answer);
+            saveWrongPracticeAnswer(n, selected, ok);
+            render();
+          };
+        });
+
+        const wrongSubmitButtons = app.querySelectorAll('[data-wrong-submit]');
+        wrongSubmitButtons.forEach(btn => {
+          btn.onclick = () => {
+            const n = Number(btn.getAttribute('data-wrong-submit'));
+            if (!Number.isFinite(n) || wrongSessionAnswers[n]) return;
+
+            const item = questions.find(qItem => Number(qItem.number) === n);
+            if (!item) return;
+
+            const selected = wrongDraftAnswers[n] || [];
+            if (!selected.length) return;
+
+            const ok = normalizeAnswer(selected.join(',')) === normalizeAnswer(item.answer);
+            saveWrongPracticeAnswer(n, selected, ok);
+            render();
+          };
+        });
       }
 
       if (mode === 'answer') {
