@@ -473,6 +473,24 @@
       }
     }
 
+    function getWrongModalScrollTop() {
+      const modalCard = document.querySelector('#wrongModal .modal-card');
+      return modalCard ? modalCard.scrollTop : 0;
+    }
+
+    function restoreWrongModalScrollTop(scrollTop) {
+      const modalCard = document.querySelector('#wrongModal .modal-card');
+      if (modalCard) {
+        modalCard.scrollTop = scrollTop;
+      }
+    }
+
+    function renderKeepingWrongScroll() {
+      const scrollTop = getWrongModalScrollTop();
+      render();
+      restoreWrongModalScrollTop(scrollTop);
+    }
+
     function jumpToQuestionByNumber(rawNumber) {
       const target = Number(String(rawNumber).trim());
       if (!Number.isInteger(target)) {
@@ -496,7 +514,7 @@
       const modeText = wrongMode === 'read' ? '阅读模式' : '答案模式';
       const toggleText = wrongMode === 'read' ? '答案模式' : '阅读模式';
       const pendingText = wrongPendingRemovalSet.size
-        ? `<span class="mode-pill">已答对 ${wrongPendingRemovalSet.size} 题，关闭后移出</span>`
+        ? `<span class="mode-pill">答对 ${wrongPendingRemovalSet.size} 题</span>`
         : '';
       if (!wrongNumbers.length) {
         return `
@@ -548,7 +566,7 @@
           ? `<div class="submit-row"><button class="wrong-submit-btn" data-wrong-submit="${n}" ${selectedKeys.length ? '' : 'disabled'}>提交答案</button></div>`
           : '';
         const resultHtml = wrongMode === 'answer' && answered
-          ? `<div class="result ${record.correct ? 'correct' : 'wrong'}">${record.correct ? '回答正确，关闭后移出错题' : '回答错误'}</div>`
+          ? `<div class="result ${record.correct ? 'correct' : 'wrong'}">${record.correct ? '回答正确' : '回答错误'}</div>`
           : '';
         const metaHtml = wrongMode === 'read' || answered
           ? `
@@ -639,7 +657,7 @@
         <div class="topbar">
       
           <div class="topbar-right">
-            <div class="progress">当前第 ${index + 1} 题 / 共 ${total} 题</div>
+            <div class="progress">第 ${index + 1} 题 / 共 ${total} 题</div>
             <div class="jump-group">
               <input id="jumpInput" type="number" min="1" step="1" placeholder="输入题号" />
               <button id="jumpBtn" class="jump-btn">跳转</button>
@@ -737,7 +755,7 @@
       if (wrongModeBtn) {
         wrongModeBtn.onclick = () => {
           wrongMode = wrongMode === 'read' ? 'answer' : 'read';
-          render();
+          renderKeepingWrongScroll();
         };
       }
 
@@ -772,13 +790,13 @@
               wrongDraftAnswers[n] = itemChoices
                 .map(choice => choice.key)
                 .filter(key => selectedSet.has(key));
-              render();
+              renderKeepingWrongScroll();
               return;
             }
 
             const ok = normalizeAnswer(selected) === normalizeAnswer(item.answer);
             saveWrongPracticeAnswer(n, selected, ok);
-            render();
+            renderKeepingWrongScroll();
           };
         });
 
@@ -796,7 +814,7 @@
 
             const ok = normalizeAnswer(selected.join(',')) === normalizeAnswer(item.answer);
             saveWrongPracticeAnswer(n, selected, ok);
-            render();
+            renderKeepingWrongScroll();
           };
         });
       }
