@@ -131,11 +131,6 @@
     if (!question) {
       questionView.classList.add("hidden");
       emptyView.classList.remove("hidden");
-      $("#questionIndex").textContent = "—";
-      $("#questionTotal").textContent = "—";
-      $("#questionType").textContent = "暂无题目";
-      $("#difficultyPill").textContent = "";
-      $("#knowledgePreview").textContent = "";
       $("#prevButton").disabled = true;
       $("#nextButton").disabled = true;
       return;
@@ -148,13 +143,7 @@
     const submitted = Boolean(record.submitted);
     const answerKeys = question.answer || [];
     const isAnswerMode = state.mode === "answer";
-    const knowledge = question.knowledge && question.knowledge.length ? question.knowledge.join(" · ") : "暂无考核点";
 
-    $("#questionIndex").textContent = pad(index + 1);
-    $("#questionTotal").textContent = visible.length;
-    $("#questionType").textContent = question.typeLabel;
-    $("#difficultyPill").textContent = question.difficulty;
-    $("#knowledgePreview").textContent = knowledge;
     $("#questionInput").value = index + 1;
     $("#prevButton").disabled = index <= 0;
     $("#nextButton").disabled = index >= visible.length - 1;
@@ -181,7 +170,7 @@
       footer = `<div class="answer-actions"><button class="primary-button" id="submitButton" type="button">提交答案</button><span class="select-hint">${hint}</span></div>`;
     }
 
-    questionView.innerHTML = `<article class="question-card"><h3 class="question-title"><span class="question-number">Q${pad(index + 1)}</span>${formatText(question.question)}</h3><div class="option-list">${optionMarkup}</div>${footer}</article>`;
+    questionView.innerHTML = `<article class="question-card"><h3 class="question-title"><span class="question-number">Q${pad(index + 1)} / ${visible.length}</span>${formatText(question.question)}<span class="question-tags"><span class="type-pill">${escapeHtml(question.typeLabel)}</span><span class="difficulty-pill">${escapeHtml(question.difficulty)}</span></span></h3><div class="option-list">${optionMarkup}</div>${footer}</article>`;
     $$(".option-button").forEach((button) => button.addEventListener("click", () => selectOption(button.dataset.key)));
     $("#submitButton")?.addEventListener("click", submitAnswer);
     $("#retryButton")?.addEventListener("click", retryAnswer);

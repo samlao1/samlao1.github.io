@@ -73,7 +73,7 @@ app.filter('boolean'); app.option('B'); app.click('#submitButton');
 assert.equal(app.get('#correctCount').textContent, 3);
 app.click('#wrongListButton'); app.click('.wrong-item');
 app = boot();
-assert.equal(app.get('#questionType').textContent, '单选题');
+assert.match(app.get('#questionView').html, /class="type-pill">单选题/);
 app.get('#questionInput').value = '3.7'; app.click('#jumpButton');
 assert.equal(app.get('#questionInput').value, 3);
 app.click('#resetButton'); app = boot();
