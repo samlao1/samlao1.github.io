@@ -9,20 +9,6 @@
   </head>
   <body>
     <div class="page-shell">
-      <header class="topbar">
-        <div class="brand-block">
-          <div class="brand-mark">Q</div>
-          <div>
-            <p class="eyebrow">2026 QUALIFICATION EXAM</p>
-            <h1>岗位资格考试题库</h1>
-          </div>
-        </div>
-        <div class="topbar-actions">
-          <span class="save-state"><span class="save-dot"></span><span id="saveState">进度自动保存</span></span>
-          <button class="ghost-button" id="resetButton" type="button"><span class="button-icon">↺</span>重置记录</button>
-        </div>
-      </header>
-
       <main class="app-layout">
         <button class="panel-toggle" id="panelToggle" type="button" aria-expanded="false" aria-controls="learningPanel">
           <span>学习面板</span><span id="panelToggleLabel">展开 ▾</span>
@@ -70,6 +56,11 @@
             <span class="wrong-entry-count" id="wrongEntryCount">0</span>
           </button>
 
+          <div class="panel-actions">
+            <span class="save-state"><span class="save-dot"></span><span id="saveState" role="status">进度自动保存</span></span>
+            <button class="ghost-button" id="resetButton" type="button"><span class="button-icon">↺</span>重置记录</button>
+          </div>
+
           <div class="sidebar-footer">
             <span class="source-label">题库来源</span>
             <span id="sourceName">2026 年岗位资格考试题库</span>
@@ -77,11 +68,6 @@
         </aside>
 
         <section class="content-area">
-          <div class="session-strip">
-            <div class="session-index"><span class="mono" id="questionIndex">01</span><span class="slash">/</span><span class="mono muted" id="questionTotal">200</span></div>
-            <div class="session-meta"><span class="type-pill" id="questionType">单选题</span><span class="difficulty-pill" id="difficultyPill">易</span><span class="knowledge-preview" id="knowledgePreview">—</span></div>
-          </div>
-
           <div id="questionView"></div>
           <div id="emptyView" class="empty-view hidden">
             <div class="empty-icon">✓</div>
